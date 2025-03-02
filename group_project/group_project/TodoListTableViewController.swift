@@ -2,7 +2,7 @@
 //  TodoListTableViewController.swift
 //  group_project
 //
-//  Created by Aadi Badola on 2025-02-26.
+//  Created by Haley Kim on 2025-02-26.
 //
 
 import UIKit
