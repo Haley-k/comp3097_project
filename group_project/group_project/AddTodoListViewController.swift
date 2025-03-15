@@ -7,20 +7,17 @@
 
 import UIKit
 
-protocol AddItemDelegate: AnyObject {
-    func didAddNewItem(_ item: String)
-}
-
 class AddTodoListViewController: UIViewController {
-
+    
+    var onCategoryAdded: (() -> Void)?
+    
     @IBOutlet weak var todoListTextField: UITextField!
     
-    weak var delegate: AddItemDelegate?
-    
     @IBAction func confirmButtonTapped(_ sender: UIButton) {
-        if let newItem = todoListTextField.text, !newItem.isEmpty {
-            delegate?.didAddNewItem(newItem)
-        }
+        guard let newCategory = todoListTextField.text, !newCategory.isEmpty else { return }
+        
+        TodoDataManager.shared.addCategory(newCategory)
+        onCategoryAdded?()
         dismiss(animated: true, completion: nil)
     }
     
@@ -30,19 +27,5 @@ class AddTodoListViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
     }
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
