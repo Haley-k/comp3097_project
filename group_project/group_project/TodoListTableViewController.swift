@@ -7,103 +7,88 @@
 
 import UIKit
 
-class TodoListTableViewController: UITableViewController, AddItemDelegate {
-    @IBOutlet var addTodoList: UITableView!
+class TodoListTableViewController: UITableViewController, UISearchBarDelegate {
     
-    var todoLists: [String] = ["Buy Groceries", "Complete COMP3097 Project", "Go To Gym"];
-    var sections = ["Section 1"]
+    @IBOutlet weak var searchBar: UISearchBar!
+    
+    var filteredCategories: [String] = []
+    var isSearchActive: Bool = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "ToDoListCell");
+        searchBar.delegate = self
     }
-
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText.isEmpty {
+            isSearchActive = false
+        } else {
+            isSearchActive = true
+            filteredCategories = TodoDataManager.shared.categories.filter {
+                $0.lowercased().contains(searchText.lowercased())
+            }
+        }
+        tableView.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        isSearchActive = false
+        searchBar.text = ""
+        searchBar.resignFirstResponder()
+        tableView.reloadData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
+    }
+    
     // MARK: - Table view data source
-
+    
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return self.sections.count;
+        
+        return 1
     }
-
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return todoLists.count
+        
+        return isSearchActive ? filteredCategories.count : TodoDataManager.shared.categories.count
     }
-
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoListCell", for: indexPath)
-
-        // Configure the cell...
-        cell.textLabel?.text = todoLists[indexPath.row]
+        let category = isSearchActive ? filteredCategories[indexPath.row] : TodoDataManager.shared.categories[indexPath.row]
+        cell.textLabel?.text = category
+        
         return cell
-    }
-
-    func didAddNewItem(_ item: String) {
-        todoLists.append(item)
-        tableView.reloadData()
     }
     
     // MARK: - Navigation
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        performSegue(withIdentifier: "showTodoItemsSegue", sender: nil)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-        if segue.identifier == "showTodoItemsSegue",
-           let destinationVC = segue.destination as? TodoItemsTableViewController,
-           let selectedRow = tableView.indexPathForSelectedRow?.row {
-                destinationVC.todoTitle = todoLists[selectedRow]
+        
+        
+        if segue.identifier == "showTodoItemsSegue" {
+            if let itemsVC = segue.destination as? TodoItemsTableViewController,
+               let selectedRow = tableView.indexPathForSelectedRow?.row {
+                let selectedCategory = TodoDataManager.shared.categories[selectedRow]
+                itemsVC.categoryName = selectedCategory
+            }
         }
-        if segue.identifier == "addTodoListSegue",
-           let destinationVC = segue.destination as? AddTodoListViewController {
-            destinationVC.delegate = self
+        
+        else if segue.identifier == "addTodoListSegue" {
+            if let addListVC = segue.destination as? AddTodoListViewController {
+                addListVC.onCategoryAdded = { [weak self] in
+                    self?.tableView.reloadData()
+                }
+            }
         }
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            // Delete the row from the data source
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        } else if editingStyle == .insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(_ tableView: UITableView, moveRowAt fromIndexPath: IndexPath, to: IndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-
 }
