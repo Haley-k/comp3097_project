@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AddTodoViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
+class AddTodoViewController: UIViewController {
     
     @IBOutlet weak var statusPickerView: UIPickerView!
     @IBOutlet weak var categoriesPickerView: UIPickerView!
