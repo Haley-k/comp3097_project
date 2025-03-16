@@ -23,12 +23,6 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Status" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="bxd-V5-u8Z">
-                                <rect key="frame" x="29" y="399" width="335" height="60"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="22"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Notes" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VJJ-Bn-EfD">
                                 <rect key="frame" x="29" y="191" width="335" height="200"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -40,12 +34,12 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                             </datePicker>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wML-Lg-dBh">
-                                <rect key="frame" x="50" y="718" width="99" height="51"/>
+                                <rect key="frame" x="50" y="718" width="299" height="51"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBlueColor"/>
                                 <color key="tintColor" systemColor="tableBackgroundColor"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Add">
+                                <buttonConfiguration key="configuration" style="plain" title="Add / Edit">
                                     <fontDescription key="titleFontDescription" type="system" pointSize="22"/>
                                 </buttonConfiguration>
                                 <userDefinedRuntimeAttributes>
@@ -59,29 +53,6 @@
                                     <segue destination="Mb3-Qh-FXX" kind="unwind" unwindAction="unwindToTodoItemsTableViewController:" id="xDy-3R-OmA"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qqX-oA-v6X">
-                                <rect key="frame" x="250" y="718" width="99" height="51"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemRedColor"/>
-                                <color key="tintColor" systemColor="tableBackgroundColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Delete">
-                                    <fontDescription key="titleFontDescription" type="system" pointSize="22"/>
-                                </buttonConfiguration>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="10"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <segue destination="Mb3-Qh-FXX" kind="unwind" identifier="unwindAddTodo" unwindAction="unwindToTodoItemsTableViewController:" id="ZtE-lj-Itd"/>
-                                </connections>
-                            </button>
-                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z0L-zd-Mi0">
-                                <rect key="frame" x="0.0" y="467" width="393" height="162"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                            </pickerView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="Due Date" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="RL3-fi-G1u">
                                 <rect key="frame" x="50" y="641" width="107" height="58"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -90,6 +61,14 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="22"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S5c-k6-Amd">
+                                <rect key="frame" x="0.0" y="389" width="393" height="162"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            </pickerView>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z0L-zd-Mi0">
+                                <rect key="frame" x="0.0" y="503" width="393" height="162"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            </pickerView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="ncr-oa-5s6"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -97,17 +76,17 @@
                     <navigationItem key="navigationItem" id="HpE-hS-MJj"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="categoriesView" destination="z0L-zd-Mi0" id="heg-3R-FSW"/>
+                        <outlet property="categoriesPickerView" destination="z0L-zd-Mi0" id="W2F-qb-Ysf"/>
+                        <outlet property="statusPickerView" destination="S5c-k6-Amd" id="fTu-O3-YXH"/>
                         <outlet property="todoDueDateField" destination="DP5-9q-cKg" id="mIc-vb-oza"/>
                         <outlet property="todoNotesTextField" destination="VJJ-Bn-EfD" id="ylY-ej-7je"/>
-                        <outlet property="todoStatusTextField" destination="bxd-V5-u8Z" id="QIW-pF-FLA"/>
                         <outlet property="todoTitleTextField" destination="gMW-lL-6CJ" id="xFI-ZG-Qha"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9cj-ry-3sK" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="Mb3-Qh-FXX" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2966" y="901"/>
+            <point key="canvasLocation" x="2965.6488549618321" y="900.70422535211276"/>
         </scene>
         <!--Table View Controller_todo-->
         <scene sceneID="GQi-nC-GWT">
@@ -203,6 +182,7 @@
                         </view>
                     </navigationItem>
                     <connections>
+                        <outlet property="searchBar" destination="TEa-Xt-TUo" id="K7b-Sj-sPx"/>
                         <outlet property="titleTextView" destination="cyv-pb-L2f" id="zgJ-BI-ulq"/>
                     </connections>
                 </tableViewController>
@@ -257,24 +237,9 @@
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="3en-cw-b3k" id="rGa-VN-pYO">
                                     <rect key="frame" x="0.0" y="0.0" width="362.66666666666669" height="43.666667938232422"/>
                                     <autoresizingMask key="autoresizingMask"/>
-                                    <subviews>
-                                        <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" usesAttributedText="YES" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="v9V-aa-8gk">
-                                            <rect key="frame" x="30" y="4" width="97" height="34"/>
-                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <attributedString key="attributedText">
-                                                <fragment content="List 1">
-                                                    <attributes>
-                                                        <font key="NSFont" metaFont="system" size="16"/>
-                                                        <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                                    </attributes>
-                                                </fragment>
-                                            </attributedString>
-                                            <textInputTraits key="textInputTraits"/>
-                                        </textField>
-                                    </subviews>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <segue destination="2El-1B-GQE" kind="show" identifier="showTodoItemsSegue" id="DLJ-gx-zY5"/>
+                                    <segue destination="2El-1B-GQE" kind="show" identifier="showTodoItemsSegue" id="OJd-2W-LdJ"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -285,6 +250,9 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="gw6-Xm-oWE"/>
+                    <connections>
+                        <outlet property="searchBar" destination="iEI-ZB-1ma" id="a3o-PS-10b"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="a0V-QP-0BA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -473,6 +441,7 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
+                                    <action selector="editButtonTapped:" destination="Buf-zT-VXk" eventType="touchUpInside" id="aty-CU-rza"/>
                                     <segue destination="K42-xx-zRa" kind="show" identifier="editTodoSegue" id="2Sx-Tl-TEM"/>
                                 </connections>
                             </button>
@@ -492,15 +461,20 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
+                                    <action selector="deleteButtonTapped:" destination="Buf-zT-VXk" eventType="touchUpInside" id="aBv-bA-jsB"/>
                                     <segue destination="lW0-SP-qrH" kind="unwind" unwindAction="unwindToTodoItemsTableViewController:" id="MVm-mL-LNt"/>
                                 </connections>
                             </button>
-                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2sI-Zu-MPn">
-                                <rect key="frame" x="0.0" y="467" width="393" height="162"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                            </pickerView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="Todo Status" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="bdE-5h-YcV">
                                 <rect key="frame" x="29" y="385" width="335" height="74"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <color key="textColor" systemColor="labelColor"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="Category" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="0vR-iZ-bHj">
+                                <rect key="frame" x="29" y="496" width="335" height="74"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <color key="textColor" systemColor="labelColor"/>
@@ -524,7 +498,7 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" text="1 January, 2025" textAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="1nm-fR-L1Q">
-                                <rect key="frame" x="29" y="639" width="335" height="58"/>
+                                <rect key="frame" x="29" y="610" width="335" height="58"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="textColor" systemColor="labelColor"/>
@@ -538,6 +512,7 @@
                     <navigationItem key="navigationItem" id="7cT-dZ-1hx"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="todoCategoryView" destination="0vR-iZ-bHj" id="6XE-Ka-4Mx"/>
                         <outlet property="todoDueView" destination="1nm-fR-L1Q" id="sNR-Qd-oaz"/>
                         <outlet property="todoNotesView" destination="VBg-rV-J2J" id="pX6-nZ-XjM"/>
                         <outlet property="todoStatusView" destination="bdE-5h-YcV" id="LxP-UT-M9X"/>
@@ -551,7 +526,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="2Sx-Tl-TEM"/>
+        <segue reference="cGY-W5-zKQ"/>
     </inferredMetricsTieBreakers>
     <resources>
         <namedColor name="AccentColor">
