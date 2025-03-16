@@ -18,42 +18,87 @@ extension UITextView {
 }
 
 class TodoDetailViewController: UIViewController {
-    
-    
+        
+    @IBOutlet weak var todoCategoryView: UITextView!
     @IBOutlet weak var todoStatusView: UITextView!
     @IBOutlet weak var todoNotesView: UITextView!
     @IBOutlet weak var todoTitleView: UITextView!
     @IBOutlet weak var todoDueView: UITextView!
     
-    var todoTitle: String?
-    var todoDue: String?
+    @IBAction func editButtonTapped(_ sender: UIButton) {
+        if presentedViewController == nil {
+            performSegue(withIdentifier: "editTodoSegue", sender: nil)
+        }
+    }
+    var todoItem: TodoItem?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
         setStyles()
-        todoDueView?.text = todoDue
-        todoTitleView?.text = todoTitle
         
+        if let item = todoItem {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .medium
+            let dueDateString = formatter.string(from: item.dueDate)
+            
+            todoTitleView.attributedText = formatText(label: "Title:", value: item.title)
+            todoNotesView.attributedText = formatText(label: "Notes:", value: item.notes)
+            todoStatusView.attributedText = formatText(label: "Status:", value: item.status.rawValue)
+            todoCategoryView.attributedText = formatText(label: "Category:", value: item.category)
+            todoDueView.attributedText = formatText(label: "Due Date:", value: dueDateString)
+        }
+    }
+    
+    private func formatText(label: String, value: String) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(
+            string: "\(label) ",
+            attributes: [.font: UIFont.boldSystemFont(ofSize: 16)]
+        )
+        let valueString = NSAttributedString(
+            string: value,
+            attributes: [.font: UIFont.systemFont(ofSize: 16)]
+        )
+        attributedString.append(valueString)
+        return attributedString
     }
     
     func setStyles() {
         todoTitleView.applyStyle()
         todoNotesView.applyStyle()
         todoStatusView.applyStyle()
+        todoCategoryView.applyStyle()
+        todoDueView.applyStyle()
+        
+        todoTitleView.isEditable = false
+        todoNotesView.isEditable = false
+        todoStatusView.isEditable = false
+        todoCategoryView.isEditable = false
+        todoDueView.isEditable = false
     }
     
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    @IBAction func deleteButtonTapped(_ sender: UIButton) {
+        guard let item = todoItem else { return }
+        
+        TodoDataManager.shared.removeTodoItem(item)
+        navigationController?.popViewController(animated: true)
+    }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        if identifier == "editTodoSegue" {
+            return false
+        }
+        return true
+    }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-        if segue.identifier == "editTodoSegue" {
-            if let destinationVC = segue.destination as? AddTodoViewController {
-                // preset text fields...
-            }
+        if segue.identifier == "editTodoSegue",
+           let addTodoVC = segue.destination as? AddTodoViewController {
+            
+            guard let item = todoItem else { return }
+            
+            addTodoVC.isEditingTodo = true
+            addTodoVC.todoItemToEdit = item
+            addTodoVC.defaultCategory = item.category
+            addTodoVC.allCategories = TodoDataManager.shared.categories
         }
     }
 
