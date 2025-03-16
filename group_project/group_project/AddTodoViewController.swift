@@ -7,82 +7,121 @@
 
 import UIKit
 
-protocol AddTodoDelegate: AnyObject {
-    func didAddTodo(title: String, dueDate: String)
-}
-
 class AddTodoViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
-    @IBOutlet weak var categoriesView: UIPickerView!
     
-    @IBOutlet weak var todoStatusTextField: UITextField!
+    @IBOutlet weak var statusPickerView: UIPickerView!
+    @IBOutlet weak var categoriesPickerView: UIPickerView!
     @IBOutlet weak var todoNotesTextField: UITextField!
-    
     @IBOutlet weak var todoTitleTextField: UITextField!
     @IBOutlet weak var todoDueDateField: UIDatePicker!
     
-    var todoTitle: String?
-    var todoDueDate: String?
-    var todoCategory: String?
-    
-    let categories = ["Home", "Work", "Personal" ]
-    
     weak var delegate: AddTodoDelegate?
+    
+    var allCategories: [String] = []
+    var defaultCategory: String?
+    
+    var isEditingTodo = false
+    var todoItemToEdit: TodoItem?
+    
+    private let statuses = TodoStatus.allCases
+    private var selectedStatus: TodoStatus = .pending
+    private var selectedCategory: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
-        categoriesView.delegate = self
-        categoriesView.dataSource = self
-        
+        setupCategoryPicker()
+        setupStatusPicker()
+        setupDefaults()
     }
     
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
+    private func setupCategoryPicker() {
+        categoriesPickerView.delegate = self
+        categoriesPickerView.dataSource = self
     }
     
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return categories.count
+    private func setupStatusPicker() {
+        statusPickerView.delegate = self
+        statusPickerView.dataSource = self
     }
     
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return categories[row]
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        todoCategory = categories[row]
+    private func setupDefaults() {
+        if let item = todoItemToEdit {
+            todoTitleTextField.text = item.title
+            todoNotesTextField.text = item.notes
+            todoDueDateField.date = item.dueDate
+            selectedStatus = item.status
+            selectedCategory = item.category
+        } else {
+            selectedCategory = defaultCategory ?? allCategories.first
+            selectedStatus = .pending
+        }
+        if let selectedIndex = allCategories.firstIndex(of: selectedCategory ?? "") {
+            categoriesPickerView.selectRow(selectedIndex, inComponent: 0, animated: false)
+        }
+        if let statusIndex = statuses.firstIndex(of: selectedStatus) {
+            statusPickerView.selectRow(statusIndex, inComponent: 0, animated: false)
+        }
     }
     
     @IBAction func addTodoButtonTapped(_ sender: UIButton) {
         guard let title = todoTitleTextField.text, !title.isEmpty else {
             return
         }
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .medium
-        let dueDate = dateFormatter.string(from: todoDueDateField.date)
         
-        delegate?.didAddTodo(title: title, dueDate: dueDate)
+        guard let category = selectedCategory else {
+            return
+        }
+        
+        let dueDate = todoDueDateField.date
+        let notes = todoNotesTextField.text ?? ""
+        
+        if isEditingTodo, let oldItem = todoItemToEdit {
+            // edit
+            let updatedItem = TodoItem(title: title, dueDate: dueDate, notes: notes, status: selectedStatus, category: category)
+            TodoDataManager.shared.updateTodoItems(for: oldItem.category, items: TodoDataManager.shared.getTodoItems(for: oldItem.category).filter { $0.title != oldItem.title } + [updatedItem])
+        } else {
+            // new item
+            let newItem = TodoItem(title: title, dueDate: dueDate, notes: notes, status: selectedStatus, category: category)
+            delegate?.didAddTodo(item: newItem)
+        }
         dismiss(animated: true, completion: nil)
     }
     
     @IBAction func cancelButtonTapped(_ sender: UIButton) {
         dismiss(animated: true, completion: nil)
     }
+
+}
+// MARK: - UIPickerViewDataSource, UIPickerViewDelegate
+extension AddTodoViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     
-
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-        if segue.identifier == "unwindAddTodo" {
-            if let title = todoTitleTextField.text, !title.isEmpty {
-                todoTitle = title
-                let formatter = DateFormatter()
-                formatter.dateStyle = .medium
-                todoDueDate = formatter.string(from: todoDueDateField.date)
-            }
+    func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if pickerView == categoriesPickerView {
+            return allCategories.count
+        } else {
+            return statuses.count
         }
     }
-
+    
+    func pickerView(_ pickerView: UIPickerView,
+                    titleForRow row: Int,
+                    forComponent component: Int) -> String? {
+        if pickerView == categoriesPickerView {
+            return allCategories[row]
+        } else {
+            return statuses[row].rawValue
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView,
+                    didSelectRow row: Int,
+                    inComponent component: Int) {
+        if pickerView == categoriesPickerView {
+            selectedCategory = allCategories[row]
+        } else {
+            selectedStatus = statuses[row]
+        }
+    }
 }
