@@ -74,11 +74,13 @@ class TodoListTableViewController: UITableViewController, UISearchBarDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        
         if segue.identifier == "showTodoItemsSegue" {
             if let itemsVC = segue.destination as? TodoItemsTableViewController,
                let selectedRow = tableView.indexPathForSelectedRow?.row {
-                let selectedCategory = TodoDataManager.shared.categories[selectedRow]
+                let selectedCategory = isSearchActive
+                ? filteredCategories[selectedRow]
+                : TodoDataManager.shared.categories[selectedRow]
+                
                 itemsVC.categoryName = selectedCategory
             }
         }
@@ -90,5 +92,61 @@ class TodoListTableViewController: UITableViewController, UISearchBarDelegate {
                 }
             }
         }
+    }
+    
+    override func tableView(_ tableView: UITableView,
+                            trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath)
+    -> UISwipeActionsConfiguration? {
+        
+        // deleting
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completionHandler in
+            guard let self = self else { return }
+            let categoryToDelete = self.isSearchActive ? self.filteredCategories[indexPath.row] : TodoDataManager.shared.categories[indexPath.row]
+            
+            if let index = TodoDataManager.shared.categories.firstIndex(of: categoryToDelete) {
+                TodoDataManager.shared.categories.remove(at: index)
+                TodoDataManager.shared.itemsByCategory.removeValue(forKey: categoryToDelete)
+            }
+            if self.isSearchActive {
+                self.filteredCategories.remove(at: indexPath.row)
+            }
+            
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            completionHandler(true)
+        }
+        
+        // editing
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [weak self] _, _, completionHandler in
+            guard let self = self else { return }
+            
+            let oldCategory = self.isSearchActive ? self.filteredCategories[indexPath.row] : TodoDataManager.shared.categories[indexPath.row]
+            
+            let alert = UIAlertController(title: "Edit Category", message: "Enter new category name", preferredStyle: .alert)
+            alert.addTextField { textField in
+                textField.text = oldCategory
+            }
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+            alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { _ in
+                if let newCategory = alert.textFields?.first?.text, !newCategory.isEmpty {
+                    
+                    if let index = TodoDataManager.shared.categories.firstIndex(of: oldCategory) {
+                        TodoDataManager.shared.categories[index] = newCategory
+                        TodoDataManager.shared.itemsByCategory[newCategory] = TodoDataManager.shared.itemsByCategory[oldCategory]
+                        TodoDataManager.shared.itemsByCategory.removeValue(forKey: oldCategory)
+                    }
+                    
+                    if self.isSearchActive {
+                        self.filteredCategories[indexPath.row] = newCategory
+                    }
+                    
+                    self.tableView.reloadData()
+                }
+            }))
+            self.present(alert, animated: true)
+            
+            completionHandler(true)
+        }
+        
+        return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
     }
 }

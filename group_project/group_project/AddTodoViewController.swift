@@ -32,6 +32,14 @@ class AddTodoViewController: UIViewController {
         setupCategoryPicker()
         setupStatusPicker()
         setupDefaults()
+        todoTitleTextField.addTarget(self, action: #selector(titleTextChanged), for: .editingChanged)
+    }
+    
+    @objc func titleTextChanged(_ textField: UITextField) {
+        if let text = textField.text, !text.isEmpty {
+            textField.layer.borderWidth = 0
+            textField.layer.borderColor = UIColor.clear.cgColor
+        }
     }
     
     private func setupCategoryPicker() {
@@ -64,11 +72,28 @@ class AddTodoViewController: UIViewController {
     }
     
     @IBAction func addTodoButtonTapped(_ sender: UIButton) {
+        sender.isEnabled = false
+        
         guard let title = todoTitleTextField.text, !title.isEmpty else {
+            todoTitleTextField.layer.borderColor = UIColor.red.cgColor
+            todoTitleTextField.layer.borderWidth = 1.0
+            todoTitleTextField.layer.cornerRadius = 5
+            
+            let alert = UIAlertController(title: "Missing Title",
+                                          message: "Please enter a title for your to-do item.",
+                                          preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+                sender.isEnabled = true
+            }))
+            
+            DispatchQueue.main.async {
+                self.present(alert, animated: true)
+            }
             return
         }
         
         guard let category = selectedCategory else {
+            sender.isEnabled = true
             return
         }
         
@@ -76,22 +101,38 @@ class AddTodoViewController: UIViewController {
         let notes = todoNotesTextField.text ?? ""
         
         if isEditingTodo, let oldItem = todoItemToEdit {
-            // edit
-            let updatedItem = TodoItem(title: title, dueDate: dueDate, notes: notes, status: selectedStatus, category: category)
-            TodoDataManager.shared.updateTodoItems(for: oldItem.category, items: TodoDataManager.shared.getTodoItems(for: oldItem.category).filter { $0.title != oldItem.title } + [updatedItem])
+            if oldItem.category != category {
+                TodoDataManager.shared.moveTodoItem(oldItem, to: category)
+            } else {
+                let updatedItem = TodoItem(title: title, dueDate: dueDate, notes: notes, status: selectedStatus, category: category)
+                let updatedItems = TodoDataManager.shared.getTodoItems(for: oldItem.category).filter { $0.title != oldItem.title } + [updatedItem]
+                TodoDataManager.shared.updateTodoItems(for: oldItem.category, items: updatedItems)
+            }
         } else {
-            // new item
             let newItem = TodoItem(title: title, dueDate: dueDate, notes: notes, status: selectedStatus, category: category)
             delegate?.didAddTodo(item: newItem)
         }
-        dismiss(animated: true, completion: nil)
+        
+        dismissOrPop(animated: true)
     }
     
     @IBAction func cancelButtonTapped(_ sender: UIButton) {
-        dismiss(animated: true, completion: nil)
+        dismissOrPop(animated: true)
     }
-
+    
+    private func dismissOrPop(animated: Bool) {
+        if let nav = navigationController {
+            if let todoItemsVC = nav.viewControllers.first(where: { $0 is TodoItemsTableViewController }) {
+                nav.popToViewController(todoItemsVC, animated: animated)
+            } else {
+                nav.popViewController(animated: animated)
+            }
+        } else {
+            dismiss(animated: animated, completion: nil)
+        }
+    }
 }
+
 // MARK: - UIPickerViewDataSource, UIPickerViewDelegate
 extension AddTodoViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     

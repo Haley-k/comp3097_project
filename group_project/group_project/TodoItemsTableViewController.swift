@@ -7,7 +7,6 @@
 
 import UIKit
 
-
 protocol AddTodoDelegate: AnyObject {
     func didAddTodo(item: TodoItem)
 }
@@ -17,28 +16,42 @@ class TodoItemsTableViewController: UITableViewController, UISearchBarDelegate, 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var titleTextView: UITextView!
     
-    var filteredItems: [TodoItem] = []
     var isSearchActive: Bool = false
+    var filteredItems: [TodoItem] = []
     var categoryName: String?
+    
+    let statusSections: [TodoStatus] = TodoStatus.allCases
+    
+    var itemsByStatus: [TodoStatus: [TodoItem]] {
+        guard let category = categoryName else { return [:] }
+        let allItems = TodoDataManager.shared.getTodoItems(for: category)
+        return Dictionary(grouping: allItems, by: { $0.status })
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         searchBar.delegate = self
-        
         if let catName = categoryName {
-            titleTextView?.text = catName;
+            titleTextView?.text = catName
             navigationItem.title = catName
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
+    // MARK: - SearchBar
+    
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        guard let catName = categoryName else { return }
-        
+        guard let category = categoryName else { return }
         if searchText.isEmpty {
             isSearchActive = false
         } else {
             isSearchActive = true
-            filteredItems = TodoDataManager.shared.getTodoItems(for: catName).filter {
+            let allItems = TodoDataManager.shared.getTodoItems(for: category)
+            filteredItems = allItems.filter {
                 $0.title.lowercased().contains(searchText.lowercased())
             }
         }
@@ -52,37 +65,44 @@ class TodoItemsTableViewController: UITableViewController, UISearchBarDelegate, 
         tableView.reloadData()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        tableView.reloadData()
-    }
+    // MARK: - AddTodoDelegate
     
     func didAddTodo(item: TodoItem) {
         TodoDataManager.shared.addTodoItem(item)
-        dismiss(animated: true) {
-            self.tableView.reloadData()
-        }
+        tableView.reloadData()
     }
     
-    // MARK: - Table view data source
+    // MARK: - Table View
     
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 1
+        return isSearchActive ? 1 : statusSections.count
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return isSearchActive ? "Search Results" : statusSections[section].rawValue
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        guard let catName = categoryName else { return 0 }
-        return isSearchActive ? filteredItems.count : TodoDataManager.shared.getTodoItems(for: catName).count
+        if isSearchActive {
+            return filteredItems.count
+        } else {
+            let status = statusSections[section]
+            return itemsByStatus[status]?.count ?? 0
+        }
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "todoItemCell", for: indexPath)
         
-        guard let catName = categoryName else { return cell }
+        let todoItem: TodoItem
+        if isSearchActive {
+            todoItem = filteredItems[indexPath.row]
+        } else {
+            let status = statusSections[indexPath.section]
+            todoItem = itemsByStatus[status]?[indexPath.row] ?? TodoItem(title: "", dueDate: Date(), notes: "", status: .pending, category: "")
+        }
         
-        let todoItem = isSearchActive ? filteredItems[indexPath.row] : TodoDataManager.shared.getTodoItems(for: catName)[indexPath.row]
+        cell.textLabel?.text = todoItem.title
         
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
@@ -94,20 +114,17 @@ class TodoItemsTableViewController: UITableViewController, UISearchBarDelegate, 
         
         let dueDateColor: UIColor = {
             if daysRemaining < 0 {
-                return .red // past due
+                return .red
             } else if daysRemaining < 3 {
-                return .blue // due in 3 days
-            }
-            else {
-                return .gray // defult
+                return .blue
+            } else {
+                return .gray
             }
         }()
         
         let attributedText = NSMutableAttributedString(string: "Due: ", attributes: [.foregroundColor: UIColor.black])
-        let dueDateAttributedString = NSAttributedString(string: dueDateString, attributes: [.foregroundColor: dueDateColor])
-        attributedText.append(dueDateAttributedString)
-        
-        cell.textLabel?.text = todoItem.title
+        let dueDateAttr = NSAttributedString(string: dueDateString, attributes: [.foregroundColor: dueDateColor])
+        attributedText.append(dueDateAttr)
         cell.detailTextLabel?.attributedText = attributedText
         
         return cell
@@ -116,25 +133,26 @@ class TodoItemsTableViewController: UITableViewController, UISearchBarDelegate, 
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showTodoDetailSegue" {
-            if let detailVC = segue.destination as? TodoDetailViewController,
-               
-                let index = tableView.indexPathForSelectedRow?.row,
-               let catName = categoryName {
-                let items = TodoDataManager.shared.getTodoItems(for: catName)
-                detailVC.todoItem = items[index]
+        if segue.identifier == "showTodoDetailSegue",
+           let detailVC = segue.destination as? TodoDetailViewController,
+           let indexPath = tableView.indexPathForSelectedRow,
+           let catName = categoryName {
+            
+            let item: TodoItem
+            if isSearchActive {
+                item = filteredItems[indexPath.row]
+            } else {
+                let status = statusSections[indexPath.section]
+                item = itemsByStatus[status]?[indexPath.row] ?? TodoItem(title: "", dueDate: Date(), notes: "", status: .pending, category: "")
             }
-        }
-        else if segue.identifier == "newTodoSegue",
-                let addTodoVC = segue.destination as? AddTodoViewController {
+            detailVC.todoItem = item
+        } else if segue.identifier == "newTodoSegue",
+                  let addTodoVC = segue.destination as? AddTodoViewController {
             addTodoVC.delegate = self
             addTodoVC.allCategories = TodoDataManager.shared.categories
             addTodoVC.defaultCategory = categoryName
         }
     }
     
-    @IBAction func unwindToTodoItemsTableViewController(_ segue: UIStoryboardSegue) {
-        
-    }
+    @IBAction func unwindToTodoItemsTableViewController(_ segue: UIStoryboardSegue) {}
 }
-

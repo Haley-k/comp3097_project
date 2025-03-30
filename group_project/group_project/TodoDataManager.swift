@@ -48,4 +48,19 @@ class TodoDataManager {
             }
         }
     }
+    
+    func moveTodoItem(_ item: TodoItem, to newCategory: String) {
+        guard item.category != newCategory else { return }
+        
+        removeTodoItem(item)
+        
+        let movedItem = TodoItem(
+            title: item.title,
+            dueDate: item.dueDate,
+            notes: item.notes,
+            status: item.status,
+            category: newCategory
+        )
+        addTodoItem(movedItem)
+    }
 }

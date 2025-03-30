@@ -18,7 +18,7 @@ extension UITextView {
 }
 
 class TodoDetailViewController: UIViewController {
-        
+    
     @IBOutlet weak var todoCategoryView: UITextView!
     @IBOutlet weak var todoStatusView: UITextView!
     @IBOutlet weak var todoNotesView: UITextView!
@@ -101,5 +101,5 @@ class TodoDetailViewController: UIViewController {
             addTodoVC.allCategories = TodoDataManager.shared.categories
         }
     }
-
+    
 }
