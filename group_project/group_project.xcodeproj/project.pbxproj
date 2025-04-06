@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		A8DABF3C2D5EA20D000A3DDF /* Exceptions for "group_project" folder in "group_project" target */ = {
+		A8DABF3C2D5EA20D000A3DDF /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -21,14 +21,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		A8DABF2C2D5EA20C000A3DDF /* group_project */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				A8DABF3C2D5EA20D000A3DDF /* Exceptions for "group_project" folder in "group_project" target */,
-			);
-			path = group_project;
-			sourceTree = "<group>";
-		};
+		A8DABF2C2D5EA20C000A3DDF /* group_project */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (A8DABF3C2D5EA20D000A3DDF /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = group_project; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +92,7 @@
 				};
 			};
 			buildConfigurationList = A8DABF252D5EA20C000A3DDF /* Build configuration list for PBXProject "group_project" */;
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -107,7 +101,6 @@
 			);
 			mainGroup = A8DABF212D5EA20C000A3DDF;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = A8DABF2B2D5EA20C000A3DDF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -147,6 +140,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = group_project/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = group_project;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -174,6 +168,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = group_project/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = group_project;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
