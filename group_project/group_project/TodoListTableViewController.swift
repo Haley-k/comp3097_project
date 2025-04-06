@@ -104,8 +104,7 @@ class TodoListTableViewController: UITableViewController, UISearchBarDelegate {
             let categoryToDelete = self.isSearchActive ? self.filteredCategories[indexPath.row] : TodoDataManager.shared.categories[indexPath.row]
             
             if let index = TodoDataManager.shared.categories.firstIndex(of: categoryToDelete) {
-                TodoDataManager.shared.categories.remove(at: index)
-                TodoDataManager.shared.itemsByCategory.removeValue(forKey: categoryToDelete)
+                TodoDataManager.shared.removeCategory(categoryToDelete)
             }
             if self.isSearchActive {
                 self.filteredCategories.remove(at: indexPath.row)
@@ -130,9 +129,7 @@ class TodoListTableViewController: UITableViewController, UISearchBarDelegate {
                 if let newCategory = alert.textFields?.first?.text, !newCategory.isEmpty {
                     
                     if let index = TodoDataManager.shared.categories.firstIndex(of: oldCategory) {
-                        TodoDataManager.shared.categories[index] = newCategory
-                        TodoDataManager.shared.itemsByCategory[newCategory] = TodoDataManager.shared.itemsByCategory[oldCategory]
-                        TodoDataManager.shared.itemsByCategory.removeValue(forKey: oldCategory)
+                        TodoDataManager.shared.renameCategory(from: oldCategory, to: newCategory)
                     }
                     
                     if self.isSearchActive {
